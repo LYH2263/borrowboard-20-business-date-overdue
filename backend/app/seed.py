@@ -1,4 +1,9 @@
+from datetime import date
+
 from app.db import connect
+
+DEFAULT_BUSINESS_DATE = date.today().isoformat()
+
 
 def init_db():
     c = connect()
@@ -23,6 +28,9 @@ def init_db():
             "INSERT INTO loans(item_id,borrower,status,due_date,lent_at) VALUES (?,?,?,?,?)",
             (4, "邻居甲", "active", "2020-06-01", "2020-05-01"),
         )
-        c.execute("INSERT INTO settings(key,value) VALUES ('board_name','木色邻里板')")
+        c.executemany("INSERT INTO settings(key,value) VALUES (?,?)", [
+            ("board_name", "木色邻里板"),
+            ("business_date", DEFAULT_BUSINESS_DATE),
+        ])
         c.commit()
     c.close()
