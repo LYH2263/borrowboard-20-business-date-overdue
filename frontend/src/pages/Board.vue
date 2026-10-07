@@ -25,6 +25,7 @@ import { inject, reactive, watch } from 'vue'
 import { api } from '../api'
 const board = inject('board')
 const reload = inject('reloadBoard')
+const applyBoard = inject('applyBoard')
 const forms = reactive({})
 watch(board, (b) => {
   for (const i of (b.available || [])) {
@@ -32,8 +33,10 @@ watch(board, (b) => {
   }
 }, { immediate: true, deep: true })
 async function lend(id) {
-  await api('/items/' + id + '/lend', { method: 'POST', body: JSON.stringify(forms[id]) })
-  await reload()
+  // The response board is reclassified at submit time under the current
+  // business date, so preview day and submit day can't tell different stories.
+  const result = await api('/items/' + id + '/lend', { method: 'POST', body: JSON.stringify(forms[id]) })
+  applyBoard(result.board)
 }
 async function ret(id) {
   await api('/loans/' + id + '/return', { method: 'POST', body: '{}' })
